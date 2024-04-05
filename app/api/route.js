@@ -16,13 +16,23 @@ const twitterBearer = bearer.readOnly;
 
 // To handle a GET request to /api
 export async function GET(request) {
+    const {
+        query: { tweet },
+        method,
+      } = request;
     // Do whatever you want
     try {
-        await twitterClient.v2.tweet("Hello world!");
-        return NextResponse.json({ message: "Hello World" }, { status: 200 });
+        if(tweet){
+            await twitterClient.v2.tweet(tweet);
+            return NextResponse.json({ message: "Hello World" }, { status: 200 });
+        }
+        else{
+        return NextResponse.json({ message: "no tweet provided in api" }, { status: 200 });
+        }
+        
     } catch (e) {
         console.log(e)
-        return NextResponse.json(e, { status: 200 });
+        return NextResponse.json(e, { status: 400 });
     }
 }
 
