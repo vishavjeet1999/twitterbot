@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout | undefined;
 
     if (running && secondsLeft === 0) {
       setSecondsLeft(time * 60);
@@ -23,10 +23,10 @@ const HomePage: React.FC = () => {
     }
 
     if (!running || secondsLeft === 0) {
-      clearInterval(intervalId);
+      clearInterval(intervalId!); // Ensure intervalId is defined before clearing
     }
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId!);
   }, [running, time, secondsLeft]);
 
   const toggleRunning = (): void => {
