@@ -1,21 +1,33 @@
 'use client'
-import { useState, useEffect } from 'react';
+// components/HomePage.tsx
+
+import React, { useState, useEffect } from 'react';
 
 const HomePage: React.FC = () => {
   const [running, setRunning] = useState<boolean>(false);
   const [time, setTime] = useState<number>(1); // Default time in minutes
   const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
+  const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
-    if (running) {
+
+    if (running && secondsLeft === 0) {
+      setSecondsLeft(time * 60);
+    }
+
+    if (running && secondsLeft > 0) {
       intervalId = setInterval(() => {
-        generateRandomNumber();
-      }, time * 60000); // Convert minutes to milliseconds
+        setSecondsLeft((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    }
+
+    if (!running || secondsLeft === 0) {
+      clearInterval(intervalId);
     }
 
     return () => clearInterval(intervalId);
-  }, [running, time]);
+  }, [running, time, secondsLeft]);
 
   const toggleRunning = (): void => {
     setRunning((prevRunning) => !prevRunning);
@@ -27,17 +39,31 @@ const HomePage: React.FC = () => {
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setTime(parseInt(e.target.value));
+    const inputValue: number = parseInt(e.target.value);
+    setTime(Math.max(inputValue, 1)); // Ensure time is not less than 1
+  };
+
+  const resetTimer = (): void => {
+    setRunning(false);
+    setSecondsLeft(0);
   };
 
   return (
     <div className="container">
       <h1>Automated Twitter Bot</h1>
       <div className="input-section">
-        <input type="number" value={time} onChange={handleTimeChange} />
+        <input
+          type="number"
+          value={time}
+          min="1"
+          onChange={handleTimeChange}
+          disabled={running}
+        />
         <span>minutes</span>
       </div>
+      <div className="timer">{running && `Time left: ${secondsLeft} seconds`}</div>
       <button onClick={toggleRunning}>{running ? 'Stop' : 'Start'}</button>
+      {running && <button onClick={resetTimer}>Reset</button>}
       <div className="table-container">
         <table>
           <thead>
@@ -66,6 +92,7 @@ const HomePage: React.FC = () => {
         input {
           width: 50px;
           margin-right: 10px;
+          text-align: center;
         }
         button {
           background-color: #007bff;
@@ -74,20 +101,10 @@ const HomePage: React.FC = () => {
           border: none;
           border-radius: 5px;
           cursor: pointer;
-          margin-bottom: 20px;
+          margin-right: 10px;
         }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        th,
-        td {
-          border: 1px solid #ddd;
-          padding: 8px;
-          text-align: center;
-        }
-        th {
-          background-color: #f2f2f2;
+        .timer {
+          margin-bottom: 10px;
         }
         .table-container {
           max-height: 200px;
