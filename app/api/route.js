@@ -16,12 +16,12 @@ const twitterBearer = bearer.readOnly;
 
 // To handle a GET request to /api
 export async function GET(request) {
-    const tweet = request?.query?.tweet
+    const tweet = req.nextUrl.searchParams.get('tweet')
     // Do whatever you want
     try {
         if(tweet){
             await twitterClient.v2.tweet(tweet);
-            return NextResponse.json({ message: "Hello World" }, { status: 200 });
+            return NextResponse.json({ message: `Tweet: ${tweet}` }, { status: 200 });
         }
         else{
         return NextResponse.json({ message: "no tweet provided in api" }, { status: 200 });
