@@ -16,7 +16,7 @@ const twitterBearer = bearer.readOnly;
 
 // To handle a GET request to /api
 export async function GET(request) {
-    const tweet = req.nextUrl.searchParams.get('tweet')
+    const tweet = request.nextUrl.searchParams.get('tweet')
     // Do whatever you want
     try {
         if(tweet){
