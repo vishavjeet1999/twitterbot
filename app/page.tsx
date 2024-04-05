@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
-const HomePage = () => {
-  const [running, setRunning] = useState(false);
-  const [time, setTime] = useState(1); // Default time in minutes
-  const [randomNumbers, setRandomNumbers] = useState([]);
+const HomePage: React.FC = () => {
+  const [running, setRunning] = useState<boolean>(false);
+  const [time, setTime] = useState<number>(1); // Default time in minutes
+  const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
   useEffect(() => {
-    let intervalId;
+    let intervalId: NodeJS.Timeout;
     if (running) {
       intervalId = setInterval(() => {
         generateRandomNumber();
@@ -16,16 +16,16 @@ const HomePage = () => {
     return () => clearInterval(intervalId);
   }, [running, time]);
 
-  const toggleRunning = () => {
-    setRunning(prevRunning => !prevRunning);
+  const toggleRunning = (): void => {
+    setRunning((prevRunning) => !prevRunning);
   };
 
-  const generateRandomNumber = () => {
-    const randomNumber = Math.floor(Math.random() * 1000); // Generating a random number
-    setRandomNumbers(prevNumbers => [...prevNumbers, randomNumber]);
+  const generateRandomNumber = (): void => {
+    const randomNumber: number = Math.floor(Math.random() * 1000); // Generating a random number
+    setRandomNumbers((prevNumbers) => [...prevNumbers, randomNumber]);
   };
 
-  const handleTimeChange = (e) => {
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setTime(parseInt(e.target.value));
   };
 
@@ -79,7 +79,8 @@ const HomePage = () => {
           width: 100%;
           border-collapse: collapse;
         }
-        th, td {
+        th,
+        td {
           border: 1px solid #ddd;
           padding: 8px;
           text-align: center;
