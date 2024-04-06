@@ -1,5 +1,4 @@
 'use client'
-// components/HomePage.tsx
 
 import React, { useState, useEffect } from 'react';
 
@@ -13,7 +12,8 @@ const HomePage: React.FC = () => {
     let intervalId: NodeJS.Timeout | undefined;
 
     if (running && secondsLeft === 0) {
-      setSecondsLeft(time * 60);
+      setRunning(false);
+      generateRandomNumber();
     }
 
     if (running && secondsLeft > 0) {
@@ -22,12 +22,8 @@ const HomePage: React.FC = () => {
       }, 1000);
     }
 
-    if (!running || secondsLeft === 0) {
-      clearInterval(intervalId!); // Ensure intervalId is defined before clearing
-    }
-
     return () => clearInterval(intervalId!);
-  }, [running, time, secondsLeft]);
+  }, [running, secondsLeft]);
 
   const toggleRunning = (): void => {
     setRunning((prevRunning) => !prevRunning);
@@ -43,11 +39,6 @@ const HomePage: React.FC = () => {
     setTime(Math.max(inputValue, 1)); // Ensure time is not less than 1
   };
 
-  const resetTimer = (): void => {
-    setRunning(false);
-    setSecondsLeft(0);
-  };
-
   return (
     <div className="container">
       <h1>Automated Twitter Bot</h1>
@@ -61,9 +52,10 @@ const HomePage: React.FC = () => {
         />
         <span>minutes</span>
       </div>
-      <div className="timer">{running && `Time left: ${secondsLeft} seconds`}</div>
+      <div className="timer">
+        {running ? `Time left: ${secondsLeft} seconds` : 'Timer Stopped'}
+      </div>
       <button onClick={toggleRunning}>{running ? 'Stop' : 'Start'}</button>
-      {running && <button onClick={resetTimer}>Reset</button>}
       <div className="table-container">
         <table>
           <thead>
@@ -85,6 +77,7 @@ const HomePage: React.FC = () => {
           max-width: 800px;
           margin: 0 auto;
           padding: 20px;
+          text-align: center;
         }
         .input-section {
           margin-bottom: 20px;
@@ -101,7 +94,7 @@ const HomePage: React.FC = () => {
           border: none;
           border-radius: 5px;
           cursor: pointer;
-          margin-right: 10px;
+          margin-top: 10px;
         }
         .timer {
           margin-bottom: 10px;
@@ -111,6 +104,7 @@ const HomePage: React.FC = () => {
           overflow-y: auto;
           border: 1px solid #ddd;
           border-radius: 5px;
+          margin-top: 20px;
         }
       `}</style>
     </div>
@@ -118,3 +112,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
