@@ -64,6 +64,7 @@ const AutomatedBot: React.FC = () => {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [tweets, setTweets] = useState<{ serial: number; data: string; time: string }[]>([]);
   const [countdown, setCountdown] = useState<number>(time * 60);
+  const [msg, setMsg] = useState<string>("");
 
   useEffect(() => {
     if (isRunning) {
@@ -89,12 +90,32 @@ const AutomatedBot: React.FC = () => {
     setTime(Math.max(inputValue, 1));
   };
 
+  function toastMsg(msg:string){
+    setMsg(msg)
+    setTimeout(()=>{
+      setMsg("")
+    },3000)
+  }
+
+  async function newTweet(twt:string) {
+    try {
+      const response = await fetch(`/api?tweet=${twt}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      toastMsg("tweet successfully")
+    } catch (error) {
+      toastMsg("error in tweet")
+    }
+  }
+
   const postToTwitter = (): void => {
     let indx = generateRandomNumber(0, myTweets.length - 1)
     // Your function to post to Twitter goes here
     const currentTime = new Date();
     const formattedTime = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()} ${currentTime.getHours() >= 12 ? 'PM' : 'AM'}`;
     setTweets((prevTweets) => [...prevTweets, { serial: prevTweets.length + 1, data: myTweets[indx], time: formattedTime }]);
+    newTweet(myTweets[indx])
   };
 
   useEffect(() => {
@@ -130,6 +151,12 @@ const AutomatedBot: React.FC = () => {
         <div className="timer">
           {isRunning && `New Tweet After : ${Math.floor(countdown / 60)}:${countdown % 60 < 10 ? '0' : ''}${countdown % 60}`}
         </div>
+        {
+          msg?
+          <p>{msg}</p>
+          :
+          null
+        }
         {
           tweets?.length
             ?
