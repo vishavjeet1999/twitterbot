@@ -187,7 +187,6 @@ const AutomatedBot: React.FC = () => {
       <style jsx>{`
         .container {
           position: relative;
-          height: 100vh;
         }
 
         .video-bg {
