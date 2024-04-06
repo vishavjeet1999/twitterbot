@@ -1,72 +1,76 @@
 'use client'
-
 import React, { useState, useEffect } from 'react';
 
-const HomePage: React.FC = () => {
-  const [running, setRunning] = useState<boolean>(false);
-  const [time, setTime] = useState<number>(1); // Default time in minutes
-  const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
-  const [secondsLeft, setSecondsLeft] = useState<number>(0);
+const AutomatedBot: React.FC = () => {
+  const [time, setTime] = useState<number>(1);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [tweets, setTweets] = useState<{ serial: number; time: string }[]>([]);
+  const [countdown, setCountdown] = useState<number>(time * 60);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined;
+    if (isRunning) {
+      const timer = setTimeout(() => {
+        postToTwitter();
+        setCountdown(time * 60);
+      }, countdown * 1000);
 
-    if (running && secondsLeft === 0) {
-      setRunning(false);
-      generateRandomNumber();
+      return () => clearTimeout(timer);
     }
+  }, [isRunning, countdown]);
 
-    if (running && secondsLeft > 0) {
-      intervalId = setInterval(() => {
-        setSecondsLeft((prevSeconds) => prevSeconds - 1);
-      }, 1000);
-    }
-
-    return () => clearInterval(intervalId!);
-  }, [running, secondsLeft]);
-
-  const toggleRunning = (): void => {
-    setRunning((prevRunning) => !prevRunning);
-  };
-
-  const generateRandomNumber = (): void => {
-    const randomNumber: number = Math.floor(Math.random() * 1000); // Generating a random number
-    setRandomNumbers((prevNumbers) => [...prevNumbers, randomNumber]);
+  const handleStartStop = (): void => {
+    setIsRunning((prevIsRunning) => !prevIsRunning);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const inputValue: number = parseInt(e.target.value);
-    setTime(Math.max(inputValue, 1)); // Ensure time is not less than 1
+    setTime(Math.max(inputValue, 1));
   };
+
+  const postToTwitter = (): void => {
+    // Your function to post to Twitter goes here
+    const currentTime = new Date();
+    const formattedTime = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()} ${currentTime.getHours() >= 12 ? 'PM' : 'AM'}`;
+    setTweets((prevTweets) => [...prevTweets, { serial: prevTweets.length + 1, time: formattedTime }]);
+  };
+
+  useEffect(() => {
+    if (isRunning) {
+      const interval = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isRunning]);
 
   return (
     <div className="container">
-      <h1>Automated Twitter Bot</h1>
+      <h1>Automated Social Media Bot</h1>
       <div className="input-section">
         <input
           type="number"
           value={time}
           min="1"
           onChange={handleTimeChange}
-          disabled={running}
+          disabled={isRunning}
         />
         <span>minutes</span>
       </div>
-      <div className="timer">
-        {running ? `Time left: ${secondsLeft} seconds` : 'Timer Stopped'}
-      </div>
-      <button onClick={toggleRunning}>{running ? 'Stop' : 'Start'}</button>
+      <div className="timer">{isRunning && `Time left: ${Math.floor(countdown / 60)}:${countdown % 60 < 10 ? '0' : ''}${countdown % 60} minutes`}</div>
+      <button onClick={handleStartStop}>{isRunning ? 'Stop' : 'Start'}</button>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th>Random Numbers</th>
+              <th>Serial Number</th>
+              <th>Time</th>
             </tr>
           </thead>
           <tbody>
-            {randomNumbers.map((number, index) => (
-              <tr key={index}>
-                <td>{number}</td>
+            {tweets.map((tweet) => (
+              <tr key={tweet.serial}>
+                <td>{tweet.serial}</td>
+                <td>{tweet.time}</td>
               </tr>
             ))}
           </tbody>
@@ -94,7 +98,7 @@ const HomePage: React.FC = () => {
           border: none;
           border-radius: 5px;
           cursor: pointer;
-          margin-top: 10px;
+          margin-right: 10px;
         }
         .timer {
           margin-bottom: 10px;
@@ -106,10 +110,18 @@ const HomePage: React.FC = () => {
           border-radius: 5px;
           margin-top: 20px;
         }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+        }
       `}</style>
     </div>
   );
 };
 
-export default HomePage;
-
+export default AutomatedBot;
